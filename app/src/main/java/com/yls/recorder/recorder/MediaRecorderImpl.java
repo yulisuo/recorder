@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.yls.recorder.Utils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -24,7 +26,7 @@ public class MediaRecorderImpl implements IRecordImpl {
     public MediaRecorderImpl(Context context, Looper looper) {
         Log.i(TAG, "new MediaRecorderImpl");
         mHandler = new Handler(looper);
-        mPath = context.getFilesDir() + File.separator + "111.amr";
+        mPath = Utils.getPath(context);
         init();
     }
 

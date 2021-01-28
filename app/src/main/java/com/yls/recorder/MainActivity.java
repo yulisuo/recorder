@@ -1,5 +1,6 @@
 package com.yls.recorder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -28,10 +29,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
 
-        mRecoder = new Recoder(this);
-        mRecoder.setListener(this);
-
-        if (!PermissionManager.hasAllPermissions(this)) {
+        if (PermissionManager.hasAllPermissions(this)) {
+            mRecoder = new Recoder(this);
+            mRecoder.setListener(this);
+        } else {
             PermissionManager.requestPermissions(this, REQUEST_PERMISSION_CODE);
         }
     }
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initView() {
         startOrStop = findViewById(R.id.start_or_stop);
         startOrStop.setOnClickListener(this);
+        Button list = findViewById(R.id.list);
+        list.setOnClickListener(this);
         mVolumeText = findViewById(R.id.volume);
     }
 
@@ -52,21 +55,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startRecord();
                 }
                 break;
+            case R.id.list:
+                gotoListActivity();
+                break;
             default:
                 break;
         }
     }
 
+    private void gotoListActivity() {
+        Intent intent = new Intent(this, RecordFileListActivity.class);
+        startActivity(intent);
+    }
+
     private void startRecord() {
         isStart = true;
         startOrStop.setText(R.string.stop);
-        mRecoder.start();
+        if (mRecoder != null) {
+            mRecoder.start();
+        }
     }
 
     private void stopRecord() {
         isStart = false;
         startOrStop.setText(R.string.start);
-        mRecoder.stop();
+        if (mRecoder != null) {
+            mRecoder.stop();
+        }
     }
 
     @Override
@@ -78,7 +93,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_PERMISSION_CODE) {
-            if (!PermissionManager.handleResult(permissions, grantResults)) {
+            if (PermissionManager.handleResult(permissions, grantResults)) {
+                if (mRecoder == null) {
+                    mRecoder = new Recoder(this);
+                    mRecoder.setListener(this);
+                }
+            } else {
                 Toast.makeText(this, "应用需要获取权限才能正常使用", Toast.LENGTH_SHORT).show();
                 finish();
             }
