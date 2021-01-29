@@ -7,12 +7,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.yls.Player;
 
 import java.io.File;
 import java.util.Arrays;
@@ -55,7 +58,7 @@ public class RecordFileListActivity extends AppCompatActivity {
     }
 
     // TODO why static
-    static class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder> {
+    class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder> {
 
         private List<File> lists;
         private Context context;
@@ -76,6 +79,10 @@ public class RecordFileListActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Log.i(TAG, "set text:" + lists.get(position).getName());
             holder.textView.setText(lists.get(position).getName());
+            holder.itemView.setOnClickListener(v -> {
+                // TODO static
+                RecordFileListActivity.this.gotoPlayActivity(lists.get(position));
+            });
         }
 
         @Override
@@ -84,14 +91,23 @@ public class RecordFileListActivity extends AppCompatActivity {
         }
 
         // TODO why static
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder {
 
             public final TextView textView;
+            public final View itemView;
 
             public ViewHolder(View itemView) {
                 super(itemView);
+                this.itemView = itemView;
                 textView = (TextView) itemView.findViewById(R.id.item_name);
             }
         }
+    }
+
+    private void gotoPlayActivity(File file) {
+        Log.i("mr", "gotoPlayActivity, file:" + file.getAbsolutePath());
+        Intent intent = new Intent(this, PlayActivity.class);
+        intent.putExtra(PlayActivity.EXTRA_KEY_FILE, file);
+        startActivity(intent);
     }
 }
